@@ -1,1 +1,1 @@
-# salt-ssh
+# salt-ssh-formula
