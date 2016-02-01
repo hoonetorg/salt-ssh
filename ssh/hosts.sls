@@ -1,6 +1,11 @@
-ssh_hosts__pkg_sshd:
-  pkg.installed:
-    - name: openssh-server
+# -*- coding: utf-8 -*-
+# vim: ft=sls
+
+{% from "ssh/map.jinja" import ssh with context %}
+
+ssh_hosts__file_/etc/ssh/ssh_host_key:
+  file.absent:
+    - name: /etc/ssh/ssh_host_key
 {% set slsrequires =salt['pillar.get']('ssh:hosts:slsrequires', False) %}
 {% if slsrequires is defined and slsrequires %}
     - require:
@@ -9,108 +14,58 @@ ssh_hosts__pkg_sshd:
 {% endfor %}
 {% endif %}
 
-ssh_hosts__pkg_ssh:
-  pkg.installed:
-    - name: openssh-clients
-    - require:
-      - pkg: ssh_hosts__pkg_sshd
-
-ssh_hosts__file_/etc/ssh/ssh_host_key:
-  file.absent:
-    - name: /etc/ssh/ssh_host_key
-    - require:
-      - pkg: ssh_hosts__pkg_ssh
-
 ssh_hosts__file_/etc/ssh/ssh_host_key.pub:
   file.absent:
     - name: /etc/ssh/ssh_host_key.pub
     - require:
-      - pkg: ssh_hosts__pkg_ssh
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key
+
 
 ssh_hosts__file_/etc/ssh/ssh_host_dsa_key:
   file.absent:
     - name: /etc/ssh/ssh_host_dsa_key
     - require:
-      - pkg: ssh_hosts__pkg_ssh
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
 ssh_hosts__file_/etc/ssh/ssh_host_dsa_key.pub:
   file.absent:
     - name: /etc/ssh/ssh_host_dsa_key.pub
     - require:
-      - pkg: ssh_hosts__pkg_ssh
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
-ssh_hosts__file_/etc/ssh/ssh_host_ecdsa_key:
+
+{% for ssh_host_cipher in ssh.host_ciphers %}
+ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
   file.managed:
-    - name: /etc/ssh/ssh_host_ecdsa_key
-    - source: salt://files/keys/hosts/{{grains['id']}}/ssh_host_ecdsa_key
+    - name: /etc/ssh/ssh_host_{{host_cipher}}_key
+    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_{{host_cipher}}_key_priv'
     - show_diff: False
     - user: root
     - group: ssh_keys
     - mode: 600
     - require:
-      - pkg: ssh_hosts__pkg_ssh
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
-ssh_hosts__file_/etc/ssh/ssh_host_ecdsa_key.pub:
+ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key.pub:
   file.managed:
-    - name: /etc/ssh/ssh_host_ecdsa_key.pub
-    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_ecdsa_key_pub'
+    - name: /etc/ssh/ssh_host_{{host_cipher}}_key.pub
+    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_{{host_cipher}}_key_pub'
     - user: root
     - group: root
     - mode: 644
     - require:
-      - pkg: ssh_hosts__pkg_ssh
-
-ssh_hosts__file_/etc/ssh/ssh_host_ed25519_key:
-  file.managed:
-    - name: /etc/ssh/ssh_host_ed25519_key
-    - source: salt://files/keys/hosts/{{grains['id']}}/ssh_host_ed25519_key
-    - show_diff: False
-    - user: root
-    - group: ssh_keys
-    - mode: 600
-    - require:
-      - pkg: ssh_hosts__pkg_ssh
-
-ssh_hosts__file_/etc/ssh/ssh_host_ed25519_key.pub:
-  file.managed:
-    - name: /etc/ssh/ssh_host_ed25519_key.pub
-    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_ed25519_key_pub'
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - pkg: ssh_hosts__pkg_ssh
-
-ssh_hosts__file_/etc/ssh/ssh_host_rsa_key:
-  file.managed:
-    - name: /etc/ssh/ssh_host_rsa_key
-    - source: salt://files/keys/hosts/{{grains['id']}}/ssh_host_rsa_key
-    - show_diff: False
-    - user: root
-    - group: ssh_keys
-    - mode: 600
-    - require:
-      - pkg: ssh_hosts__pkg_ssh
-
-ssh_hosts__file_/etc/ssh/ssh_host_rsa_key.pub:
-  file.managed:
-    - name: /etc/ssh/ssh_host_rsa_key.pub
-    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_rsa_key_pub'
-    - user: root
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - pkg: ssh_hosts__pkg_ssh
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key
+{% endfor %}
 
 ssh_hosts__file_/etc/ssh/ssh_known_hosts:
   file.managed:
     - name: /etc/ssh/ssh_known_hosts
-    - source: salt://ssh/ssh_known_hosts.jinja
-    - template: jinja 
+    - source: salt://ssh/templates/ssh_known_hosts.jinja
+    - template: jinja
+    - context: 
+        ssh: {{ssh|yaml}}
     - user: root
     - group: root
     - mode: 644
     - require:
-      - pkg: ssh_hosts__pkg_ssh
-
+      - file: ssh_hosts__file_/etc/ssh/ssh_host_key

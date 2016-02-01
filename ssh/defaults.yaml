@@ -1,0 +1,9 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+ssh:
+  sshd_config: '/etc/ssh/sshd_config'
+  global_known_hosts: '/etc/ssh/ssh_known_hosts'
+  host_ciphers:
+    - ecdsa
+    - ed25519
+    - rsa

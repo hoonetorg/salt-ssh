@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+# vim: ft=jinja
+
+{% import_yaml 'ssh/defaults.yaml' as default_settings %}
+
+{% set os_family_map = salt['grains.filter_by']({
+        'Debian': {
+            "pkgs": {
+               'server': [ 'openssh-server', ],
+               'client': [ 'openssh-clients', ],
+            },
+            "service": {
+               'name': 'ssh',
+            },
+        },
+        'RedHat': {
+            "pkgs": {
+               'server': [ 'openssh-server', ],
+               'client': [ 'openssh-client', ],
+            },
+            "service": {
+               'name': 'sshd',
+            },
+        },
+  }
+  , grain="os_family"
+  , merge=salt['pillar.get']('ssh:lookup'))
+%}
+{% do default_settings.ssh.update(os_family_map) %}
+
+{% set ssh = salt['pillar.get'](
+        'ssh',
+        default=default_settings.ssh,
+        merge=True
+    )
+%}
