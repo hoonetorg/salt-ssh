@@ -34,7 +34,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_dsa_key.pub:
       - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
 
-{% for ssh_host_cipher in ssh.host_ciphers %}
+{% for host_cipher in ssh.host_ciphers %}
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key
