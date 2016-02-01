@@ -33,12 +33,11 @@ ssh_hosts__file_/etc/ssh/ssh_host_dsa_key.pub:
     - require:
       - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
-
 {% for host_cipher in ssh.host_ciphers %}
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key
-    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_{{host_cipher}}_key_priv'
+    - contents_pillar: 'ssh:hosts:ssh_host_keys:{{grains['id']}}:ssh_host_{{host_cipher}}_key_priv'
     - show_diff: False
     - user: root
     - group: ssh_keys
@@ -49,7 +48,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key.pub:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key.pub
-    - contents_pillar: 'nodedata:{{grains['id']}}:sshdata:ssh_host_{{host_cipher}}_key_pub'
+    - contents_pillar: 'ssh:hosts:ssh_host_keys:{{grains['id']}}:ssh_host_{{host_cipher}}_key_pub'
     - user: root
     - group: root
     - mode: 644
