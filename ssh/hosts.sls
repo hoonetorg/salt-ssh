@@ -6,7 +6,7 @@
 ssh_hosts__file_/etc/ssh/ssh_host_key:
   file.absent:
     - name: /etc/ssh/ssh_host_key
-{% set slsrequires =salt['pillar.get']('ssh:hosts:slsrequires', False) %}
+{% set slsrequires = ssh.hosts.slsrequires|default(False) %}
 {% if slsrequires is defined and slsrequires %}
     - require:
 {% for slsrequire in slsrequires %}
