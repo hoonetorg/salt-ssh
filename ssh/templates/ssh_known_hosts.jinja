@@ -2,7 +2,7 @@
   {%- if ssh_host_key_data.hostlist is defined and ssh_host_key_data.hostlist -%}
     {% for host_cipher in ssh.host_ciphers %}
       {%- if ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub'] is defined and ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub'] -%}
-{{hostlist}} {{ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub']}}
+{{ssh_host_key_data.hostlist}} {{ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub']}}
       {%- endif -%}
     {%- endfor -%}
   {%- endif -%}
