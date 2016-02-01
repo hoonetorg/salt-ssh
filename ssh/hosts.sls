@@ -37,7 +37,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_dsa_key.pub:
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key
-    - contents_pillar: 'ssh:hosts:ssh_host_keys:{{grains['id']}}:ssh_host_{{host_cipher}}_key_priv'
+    - contents: {{ssh['hosts']['ssh_host_keys'][grains['id']]['ssh_host_' + host_cipher +'_key_priv']|yaml_encode}}
     - show_diff: False
     - user: root
     - group: ssh_keys
@@ -48,7 +48,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key.pub:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key.pub
-    - contents_pillar: 'ssh:hosts:ssh_host_keys:{{grains['id']}}:ssh_host_{{host_cipher}}_key_pub'
+    - contents: {{ssh['hosts']['ssh_host_keys'][grains['id']]['ssh_host_' + host_cipher +'_key_pub']|yaml_encode}}
     - user: root
     - group: root
     - mode: 644
