@@ -34,6 +34,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_dsa_key.pub:
       - file: ssh_hosts__file_/etc/ssh/ssh_host_key
 
 {% for host_cipher in ssh.host_ciphers %}
+  {% if ssh.get('hosts', {}).get('ssh_host_keys', {}).get(grains['id'], {}).get('ssh_host_' + host_cipher +'_key_priv', False) %}
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key
@@ -44,7 +45,9 @@ ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key:
     - mode: 600
     - require:
       - file: ssh_hosts__file_/etc/ssh/ssh_host_key
+  {% endif %}
 
+  {% if ssh.get('hosts', {}).get('ssh_host_keys', {}).get(grains['id'], {}).get('ssh_host_' + host_cipher +'_key_pub', False) %}
 ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key.pub:
   file.managed:
     - name: /etc/ssh/ssh_host_{{host_cipher}}_key.pub
@@ -54,6 +57,7 @@ ssh_hosts__file_/etc/ssh/ssh_host_{{host_cipher}}_key.pub:
     - mode: 644
     - require:
       - file: ssh_hosts__file_/etc/ssh/ssh_host_key
+  {% endif %}
 {% endfor %}
 
 ssh_hosts__file_/etc/ssh/ssh_known_hosts:
