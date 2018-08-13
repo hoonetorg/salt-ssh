@@ -1,3 +1,36 @@
+#probably you want to use a lot of jinja (import, if, for ...)
 ssh:
   lookup:
-    hosts:
+    server:
+      #config uses augeas
+      config:
+        #you will use jinja to load the listen address for your current minion from some external source or so
+        "ListenAddress[1]": "192.168.1.1"
+        "ListenAddress[2]": "192.168.2.1"
+      slsrequires:
+        - sls: repoconf
+
+    client:
+      #config uses augeas
+      config:
+        "Host/ForwardX11": "yes"
+      slsrequires:
+        - sls: netcfg.file
+
+    global_known_hosts:
+      ssh_host_keys:
+        #you will use jinja to load the data of all nodes
+        node1: 
+          hostlist: "node1.example.com,node1,cname-node1.example.com,cname-node1,192.168.1.1,192.168.2.1"
+          ssh_host_rsa_key_pub: AAAAAAAAAAAAAAAAAAAAPUBKEY
+        node2: 
+          hostlist: "node2.example.com,node2,cname-node2.example.com,cname-node2,192.168.1.2,192.168.2.2"
+          ssh_host_rsa_key_pub: AAAAAAAAAAAAAAAAAAAAPUBKEY
+      slsrequires:
+        - sls: repoconf
+
+    host_keys:
+      ssh_host_rsa_key_pub: {{ load_my_pub_rsa_host_key_from_some_external_resource()|yaml_encode}}
+      ssh_host_rsa_key_priv: {{ load_my_pub_rsa_host_key_from_some_external_resource()|yaml_encode}}
+      slsrequires:
+        - sls: netcfg.file

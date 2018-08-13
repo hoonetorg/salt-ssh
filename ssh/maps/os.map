@@ -1,0 +1,12 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+
+Debian:
+  server:
+    service:
+      name: ssh
+
+RedHat:
+  server:
+    service:
+      name: sshd

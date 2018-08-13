@@ -1,36 +1,18 @@
 # -*- coding: utf-8 -*-
-# vim: ft=jinja
+# vim: ft=yaml
 
-{% import_yaml 'ssh/defaults.yaml' as default_settings %}
+{% import_yaml "ssh/maps/defaults.map" as ssh_defaults %}
 
-{% set os_family_map = salt['grains.filter_by']({
-        'Debian': {
-            "pkgs": {
-               'server': [ 'openssh-server', ],
-               'client': [ 'openssh-clients', ],
-            },
-            "service": {
-               'name': 'ssh',
-            },
-        },
-        'RedHat': {
-            "pkgs": {
-               'server': [ 'openssh-server', ],
-               'client': [ 'openssh-client', ],
-            },
-            "service": {
-               'name': 'sshd',
-            },
-        },
-  }
-  , grain="os_family"
-  , merge=salt['pillar.get']('ssh:lookup'))
-%}
-{% do default_settings.ssh.update(os_family_map) %}
+{% import_yaml "ssh/maps/osdefaults.map" as ssh_osdefaults %}
 
-{% set ssh = salt['pillar.get'](
-        'ssh',
-        default=default_settings.ssh,
-        merge=True
-    )
-%}
+{% import_yaml "ssh/maps/os.map" as ssh_os %}
+
+{% set ssh_os_family = {} %}
+
+{% do ssh_os_family.update(ssh_defaults) %}
+{% do ssh_os_family.update(ssh_osdefaults) %}
+{% do ssh_os_family.update(ssh_os) %}
+
+{%- set ssh_default_plus_pillar_lookup = salt['grains.filter_by'](ssh_os_family, grain='os_family', merge=salt['pillar.get']('ssh:lookup'), default='osdefaults', base='defaults') %}
+
+{%- set ssh = salt['pillar.get']('ssh', default=ssh_default_plus_pillar_lookup, merge=True) %}

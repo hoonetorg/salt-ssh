@@ -1,8 +1,8 @@
-{%- for ssh_host_key,ssh_host_key_data in ssh.hosts.ssh_host_keys.items()|default({})|sort %}
-  {%- if ssh_host_key_data.hostlist is defined and ssh_host_key_data.hostlist -%}
+{%- for ssh_host_key,ssh_host_key_data in ssh.get('global_known_hosts', {}).get('ssh_host_keys', {}).items()|sort %}
+  {%- if ssh_host_key_data.get('hostlist', False) -%}
     {% for host_cipher in ssh.host_ciphers %}
-      {%- if ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub'] is defined and ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub'] -%}
-{{ssh_host_key_data.hostlist}} {{ssh_host_key_data['ssh_host_' + host_cipher + '_key_pub']}}
+      {%- if ssh_host_key_data.get('ssh_host_' + host_cipher + '_key_pub', False) -%}
+{{ssh_host_key_data.hostlist}} {{ssh_host_key_data.get('ssh_host_' + host_cipher + '_key_pub')}}
       {%- endif -%}
     {%- endfor -%}
   {%- endif -%}
