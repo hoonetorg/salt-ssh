@@ -5,4 +5,4 @@
 
 ssh_server_install__pkg:
   pkg.installed:
-    - pkgs: {{ ssh.server.pkgs }}
+    - pkgs: {{ ssh.server.pkgs | tojson}}
