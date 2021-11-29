@@ -19,7 +19,7 @@ ssh_client_config__config:
 
 ssh_client_config__config_finished:
   cmd.run:
-    - name: true
-    - unless: true
+    - name: "true"
+    - unless: "true"
 
 

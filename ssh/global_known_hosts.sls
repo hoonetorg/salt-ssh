@@ -5,8 +5,8 @@
 
 ssh_global_known_hosts__require:
   cmd.run:
-    - name: true
-    - unless: true
+    - name: "true"
+    - unless: "true"
 {% if ssh.get('global_known_hosts', {}).get('slsrequires', False ) %}
     - require:
 {% for slsrequire in ssh.get('global_known_hosts', {}).get('slsrequires')|sort %}

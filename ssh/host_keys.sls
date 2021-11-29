@@ -5,8 +5,8 @@
 
 ssh_host_keys__require:
   cmd.run:
-    - name: true
-    - unless: true
+    - name: "true"
+    - unless: "true"
 {% if ssh.get('host_keys', {}).get('slsrequires', False ) %}
     - require:
 {% for slsrequire in ssh.get('host_keys', {}).get('slsrequires')|sort %}

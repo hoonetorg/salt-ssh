@@ -5,8 +5,8 @@
 
 ssh_server__require:
   cmd.run:
-    - name: true
-    - unless: true
+    - name: "true"
+    - unless: "true"
 {% if ssh.get('server', {}).get('slsrequires', False ) %}
     - require:
 {% for slsrequire in ssh.get('server', {}).get('slsrequires')|sort %}
